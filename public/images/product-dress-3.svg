@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role=img aria-label=product-dress>
+<rect width="400" height="500" fill="#efe9e1"/><g transform="translate(400 0) scale(-1 1)">
+<path d="M152 92 C168 66 232 66 248 92 L266 176 C292 244 300 320 264 452 H136 C100 320 108 244 134 176 Z" fill="#2b2926"/>
+<path d="M152 92 L200 120 L248 92" fill="none" stroke="#8a8177" stroke-width="4"/>
+<path d="M134 240 C166 268 234 268 266 240" fill="none" stroke="#57524c" stroke-width="4"/>
+<path d="M136 350 L264 350" stroke="#57524c" stroke-width="4"/>
+</svg>

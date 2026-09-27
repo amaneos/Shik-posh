@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role=img aria-label=product-sweater>
+<rect width="400" height="500" fill="#e7ece3"/><g transform="translate(400 0) scale(-1 1)">
+<path d="M150 104 L132 62 H96 V88 L60 116 V150 L128 192 L136 452 H264 L272 192 L340 150 V116 L304 88 V62 H268 L250 104 C226 122 174 122 150 104 Z" fill="#57524c"/>
+<path d="M152 104 L200 128 L248 104" fill="none" stroke="#2b2926" stroke-width="5"/>
+<path d="M126 320 H274" stroke="#2b2926" stroke-width="5" opacity="0.6"/>
+<path d="M126 352 H274" stroke="#2b2926" stroke-width="5" opacity="0.6"/>
+<path d="M126 384 H274" stroke="#2b2926" stroke-width="5" opacity="0.6"/>
+</svg>

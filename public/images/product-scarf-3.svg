@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role=img aria-label=product-scarf>
+<rect width="400" height="500" fill="#f0e9e1"/>
+<g transform="rotate(-16 200 260)">
+<rect x="132" y="104" width="136" height="330" rx="16" fill="#57524c"/>
+<rect x="148" y="120" width="30" height="298" rx="12" fill="#8a8177" opacity="0.6"/>
+</g>
+</svg>

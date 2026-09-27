@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role=img aria-label=product-hoodie>
+<rect width="400" height="500" fill="#f4f1ec"/>
+<path d="M150 120 L132 64 Q200 40 268 64 L250 120 L266 152 L336 132 V168 L272 200 V452 H128 V200 L64 168 V132 L134 152 Z" fill="#2b7063"/>
+<path d="M132 58 Q160 30 200 30 Q240 30 268 58" fill="none" stroke="#2b2926" stroke-width="8"/>
+<path d="M152 120 L200 150 L248 120" fill="none" stroke="#2b2926" stroke-width="5"/>
+<rect x="128" y="300" width="144" height="52" rx="14" fill="#2b2926" opacity="0.85"/>
+</svg>

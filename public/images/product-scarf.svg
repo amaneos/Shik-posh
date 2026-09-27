@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role=img aria-label=product-scarf>
+<rect width="400" height="500" fill="#f4f1ec"/>
+<g transform="rotate(-16 200 260)">
+<rect x="132" y="104" width="136" height="330" rx="16" fill="#2b2926"/>
+<rect x="148" y="120" width="30" height="298" rx="12" fill="#8a8177" opacity="0.5"/>
+</g>
+<path d="M104 392 C150 428 250 428 296 392" fill="none" stroke="#57524c" stroke-width="5"/>
+</svg>

@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/*
+ * Design system — white-label Persian RTL storefront.
+ * Tokens live in @theme; base styles in @layer base.
+ * Palette: warm stone neutrals + one restrained deep-pine accent.
+ */
+
+/* Self-hosted Vazirmatn (variable font, weights 100–900) — no CDN at runtime. */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/Vazirmatn-Variable.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@theme {
+  /* Typography — Vazirmatn is the single font family for the whole UI. */
+  --font-sans: "Vazirmatn", "Segoe UI", Tahoma, ui-sans-serif, system-ui, sans-serif;
+
+  /* Accent — one restrained premium hue (deep pine/jade). */
+  --color-accent-50: #f1f8f5;
+  --color-accent-100: #dcefe7;
+  --color-accent-200: #b9dfd1;
+  --color-accent-300: #8bc7b2;
+  --color-accent-400: #5aa98f;
+  --color-accent-500: #3a8c75;
+  --color-accent-600: #2b7063;
+  --color-accent-700: #26594f;
+  --color-accent-800: #214941;
+  --color-accent-900: #1e3d37;
+  --color-accent-950: #0e2320;
+
+  /* Neutral inked surface (used by placeholder artwork). */
+  --color-charcoal: #2b2926;
+
+  /* Radius scale. */
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+
+  /* Shadow scale — soft for surfaces, lift for hovered/interactive. */
+  --shadow-soft: 0 1px 2px rgb(28 25 23 / 0.05), 0 8px 24px -12px rgb(28 25 23 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(28 25 23 / 0.06), 0 16px 40px -16px rgb(28 25 23 / 0.22);
+
+  /* Type scale — hero display size (mobile-first: 2.5rem, up to 3.5rem via sm:). */
+  --text-hero: 2.5rem;
+  --text-hero--line-height: 1.2;
+  --text-hero--font-weight: 700;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-stone-50 font-sans text-stone-900 antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    @apply bg-accent-600/15 text-accent-950;
+  }
+
+  /* Persian numerals everywhere (any stray ASCII digits are normalized in JS,
+     this is a safety net for text we don't control). */
+  html[lang="fa"] {
+    font-feature-settings: normal;
+  }
+}

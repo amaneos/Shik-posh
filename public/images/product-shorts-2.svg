@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role=img aria-label=product-shorts>
+<rect width="400" height="500" fill="#e7ece3"/>
+<g transform="translate(400 0) scale(-1 1)">
+<rect x="112" y="104" width="176" height="36" rx="9" fill="#2b2926"/>
+<path d="M112 136 L106 300 L120 300 L126 452 H176 L186 300 H214 L224 452 H274 L280 300 L294 300 L288 136 Z" fill="#3c3833"/>
+<path d="M112 140 L200 142 L288 140" stroke="#2b2926" stroke-width="5" fill="none"/>
+<path d="M200 142 V300" stroke="#8a8177" stroke-width="3"/>
+</g>
+</svg>

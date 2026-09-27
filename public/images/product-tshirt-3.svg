@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role=img aria-label=product-tshirt>
+<rect width="400" height="500" fill="#efe9e1"/><g transform="translate(400 0) scale(-1 1)">
+<path d="M152 96 L134 60 H98 V88 L62 118 V152 L130 194 V452 H270 V194 L338 152 V118 L302 88 V60 H266 L248 96 C226 112 174 112 152 96 Z" fill="#2b2926"/>
+<path d="M152 96 L200 118 L248 96" fill="none" stroke="#57524c" stroke-width="4"/>
+</svg>

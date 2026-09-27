@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role=img aria-label=product-jeans>
+<rect width="400" height="500" fill="#f4f1ec"/>
+<rect x="118" y="60" width="164" height="34" rx="8" fill="#2b2926"/>
+<path d="M118 90 L108 250 L118 452 H164 L178 250 L182 452 H218 L222 250 L236 452 H282 L292 250 L282 90 Z" fill="#3c3833"/>
+<path d="M200 90 V452" stroke="#8a8177" stroke-width="3"/>
+<path d="M118 90 L200 92 L282 90" stroke="#2b2926" stroke-width="4" fill="none"/>
+</svg>

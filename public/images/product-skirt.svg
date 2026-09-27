@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role=img aria-label=product-skirt>
+<rect width="400" height="500" fill="#f4f1ec"/>
+<rect x="112" y="96" width="176" height="34" rx="8" fill="#2b2926"/>
+<path d="M112 124 C140 300 150 410 200 452 C250 410 260 300 288 124 Z" fill="#2b2926"/>
+<path d="M200 124 V452" stroke="#8a8177" stroke-width="3"/>
+<path d="M112 128 L200 130 L288 128" stroke="#2b2926" stroke-width="5" fill="none"/>
+</svg>

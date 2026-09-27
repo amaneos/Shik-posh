@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role=img aria-label=product-coat>
+<rect width="400" height="500" fill="#f4f1ec"/>
+<path d="M150 84 L134 44 H96 V74 L58 100 V146 L126 192 L144 452 H256 L274 192 L342 146 V100 L304 74 V44 H266 L250 84 C228 102 172 102 150 84 Z" fill="#2b2926"/>
+<path d="M150 84 L126 132 L150 138" fill="none" stroke="#8a8177" stroke-width="5"/>
+<path d="M250 84 L274 132 L250 138" fill="none" stroke="#8a8177" stroke-width="5"/>
+<path d="M142 236 H258" stroke="#57524c" stroke-width="6"/>
+<path d="M120 300 L200 330 L280 300 V452 H200 V340 L120 360 Z" fill="#57524c" opacity="0.5"/>
+</svg>
