@@ -25,7 +25,7 @@
  *    screen is either typed by the customer or read from the catalog.
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, createFileRoute, useNavigate, type LinkProps } from "@tanstack/react-router";
 
 import { Button } from "~/components/Button";
@@ -347,6 +347,19 @@ function CheckoutPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [paying, setPaying] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
+  /**
+   * One immutable token per checkout page instance. A retry after a refusal is
+   * still allowed (a refused attempt never consumes the token), but a replayed
+   * submission — e.g. a double click racing the busy state — can only ever
+   * produce one order, because the engine rejects a spent token.
+   */
+  const [submissionToken] = useState(() => createSubmissionToken());
+  /**
+   * Synchronous re-entrancy guard. `paying` is React state, so it is still
+   * `false` for every handler that runs in the same task as the first click —
+   * the ref closes that gap.
+   */
+  const payingRef = useRef(false);
 
   const isEmpty = lines.length === 0;
 
@@ -358,13 +371,14 @@ function CheckoutPage() {
   };
 
   const pay = async () => {
-    if (paying) return; // one order per click — the button is disabled too
+    if (payingRef.current || paying) return; // one order per click — the button is disabled too
 
     const found = validateForm(form);
     setErrors(found);
     setOrderError(null);
     if (Object.keys(found).length > 0) return; // no order, errors are on screen
 
+    payingRef.current = true; // synchronous: blocks a second click in this task
     setPaying(true);
     try {
       // Mock payment: nothing is charged, no gateway is contacted.
@@ -383,9 +397,9 @@ function CheckoutPage() {
           variantId,
           quantity,
         })),
-        // Fresh token per attempt: a retry after a refusal is allowed, while a
-        // replay of an already-consumed attempt can never create a second order.
-        submissionToken: createSubmissionToken(),
+        // Page-scoped token: a retry after a refusal is allowed, while a replay
+        // of an already-consumed attempt can never create a second order.
+        submissionToken,
       });
 
       if (!result.ok) {
@@ -400,6 +414,7 @@ function CheckoutPage() {
         search: orderSuccessSearch(result.order.orderNumber),
       });
     } finally {
+      payingRef.current = false;
       setPaying(false);
     }
   };

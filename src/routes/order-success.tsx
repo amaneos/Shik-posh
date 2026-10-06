@@ -159,7 +159,11 @@ function OrderConfirmation({ order }: { order: Order }) {
 
         <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
           <span className="text-xs text-stone-500">وضعیت پرداخت:</span>
-          <Badge variant="accent" data-payment-status={order.paymentStatus}>
+          <Badge
+            variant="accent"
+            data-payment-status={order.paymentStatus}
+            data-order-payment-status={order.paymentStatus}
+          >
             {order.paymentStatus}
           </Badge>
           <span className="text-xs text-stone-500">وضعیت سفارش:</span>
