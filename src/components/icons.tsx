@@ -29,6 +29,16 @@ export function SearchIcon({ className }: IconProps) {
   );
 }
 
+/** Success marker (order confirmation) — a check inside a circle. */
+export function CheckIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12.5 2.6 2.6L16 9.7" />
+    </svg>
+  );
+}
+
 export function UserIcon({ className }: IconProps) {
   return (
     <svg {...base(className)}>
