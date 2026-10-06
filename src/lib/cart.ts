@@ -160,7 +160,7 @@ export function findProductById(products: Product[], productId: string): Product
  * missing SIZE for a known colour is «این سایز موجود نیست», and otherwise the
  * variant is simply gone/inactive.
  */
-function classifyVariantFailure(
+export function classifyVariantFailure(
   product: Product,
   hints: VariantHint | undefined
 ): CartErrorReason {
