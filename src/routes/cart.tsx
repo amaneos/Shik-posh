@@ -15,8 +15,8 @@
  *    and explainable rather than a dead button.
  *  • `−` is disabled at 1, so a quantity can never fall to 0 (remove does that).
  *  • Remove is always available. Emptying the cart falls back to the empty state.
- *  • No checkout/payment/shipping/taxes here — the action is a disabled,
- *    honest note.
+ *  • No payment here: the summary's action links to `/checkout` (STEP 5 part B),
+ *    where the customer enters delivery details and the order is placed.
  */
 
 import { useState } from "react";
@@ -429,11 +429,11 @@ function CartPage() {
                 </div>
               </dl>
 
-              <Button disabled className="mt-5 w-full" data-checkout-disabled="true">
+              <Button to="/checkout" className="mt-5 w-full" data-checkout-link="true">
                 ادامه فرآیند خرید
               </Button>
               <p className="mt-2 text-center text-xs text-stone-500">
-                تسویه‌حساب و پرداخت در مراحل بعدی فعال می‌شود.
+                هزینه ارسال و مالیات در مراحل بعدی محاسبه می‌شود.
               </p>
             </Card>
           </div>

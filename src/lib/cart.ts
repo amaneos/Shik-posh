@@ -39,6 +39,7 @@ import {
   type Product,
   type Variant,
 } from "~/lib/data";
+import { liveStockQuantity } from "~/lib/inventory";
 
 /* ── Types ─────────────────────────────────────────────────────────────────── */
 
@@ -201,7 +202,11 @@ export function validateCartRequest(
   }
 
   const quantity = normalizeQuantity(requestedQuantity);
-  if (variant.stockQuantity <= 0 || quantity > variant.stockQuantity) {
+  // Demo mode reports the live ledger stock instead of the catalog snapshot, so a
+  // unit already sold this session can never be added again (see
+  // `liveStockQuantity`). Pass-through when Supabase is configured.
+  const stock = liveStockQuantity(variant.id, variant.stockQuantity);
+  if (stock <= 0 || quantity > stock) {
     return { ok: false, reason: "insufficient-stock" };
   }
   return { ok: true };
@@ -212,10 +217,18 @@ export function resolveCartLines(items: CartItem[], products: Product[]): CartLi
   return items.map((item) => {
     const quantity = normalizeQuantity(item.quantity);
     const product = findProductById(products, item.productId);
-    const variant =
+    const found =
       product !== null
         ? (getProductVariants(product).find((v) => v.id === item.variantId) ?? null)
         : null;
+    // Demo mode: the row reports the LIVE stock (in-memory ledger) so the
+    // quantity cap, the «ناموجود» treatment and the checkout summary all match
+    // what the order engine will actually accept. Same value as the fixture when
+    // Supabase is configured.
+    const variant =
+      found === null
+        ? null
+        : { ...found, stockQuantity: liveStockQuantity(found.id, found.stockQuantity) };
     const available = product !== null && variant !== null && isVariantAvailable(variant);
     const unitPrice = product !== null ? effectiveUnitPrice(product) : 0;
     const reason: CartErrorReason | null = available

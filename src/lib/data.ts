@@ -28,6 +28,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { DEMO_CATEGORIES, DEMO_PRODUCTS, type DemoProduct } from "~/lib/demo-data";
+import { liveStockQuantity } from "~/lib/inventory";
 import { getSupabaseClient, isSupabaseConfigured } from "~/lib/supabase";
 
 export interface Category {
@@ -199,7 +200,10 @@ function toDemoProduct(row: DemoProduct): Product {
     color: v.color,
     size: v.size,
     sku: v.sku,
-    stockQuantity: v.stockQuantity,
+    // Demo mode: the in-memory ledger (src/lib/inventory.ts) is the single writer
+    // of stock, so a catalog read reports the LIVE number and falls back to the
+    // fixture value. No-op pass-through once Supabase is configured.
+    stockQuantity: liveStockQuantity(v.id, v.stockQuantity),
     status: v.status,
   }));
   return {

@@ -28,6 +28,7 @@
  */
 
 import { DEMO_PRODUCTS } from "~/lib/demo-data";
+import { isSupabaseConfigured } from "~/lib/supabase";
 
 /* ── Errors ────────────────────────────────────────────────────────────────── */
 
@@ -203,4 +204,26 @@ export function availableStock(
   ledger: StockLedger = demoInventory
 ): number | null {
   return ledger.get(variantId);
+}
+
+/* ── Live stock for PUBLIC reads (DEMO MODE ONLY) ───────────────────────────── */
+
+/**
+ * The stock a public read should report for one variant. DEMO MODE ONLY.
+ *
+ * While no Supabase project is connected the ledger above is the ONLY thing that
+ * changes stock, so a public read has to ask it: otherwise the product page and
+ * the cart would keep advertising the fixture quantity after an order has
+ * already removed those units — the UI would promise stock that `placeOrder`
+ * (correctly) refuses. Falls back to the catalog/fixture value for a variant the
+ * ledger has never seen, so a not-yet-seeded catalog still reads correctly.
+ *
+ * STRICTLY a pass-through once Supabase is configured: in that deployment the
+ * database is the single writer of `variants.stock_quantity` and this helper is
+ * never consulted (it returns `fixtureStock` untouched).
+ */
+export function liveStockQuantity(variantId: string, fixtureStock: number): number {
+  if (isSupabaseConfigured()) return fixtureStock;
+  const current = demoInventory.get(variantId);
+  return current === null ? fixtureStock : current;
 }
