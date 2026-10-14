@@ -28,8 +28,11 @@ import { Button } from "~/components/Button";
 import { Card } from "~/components/Card";
 import { Container } from "~/components/Container";
 import { CheckIcon } from "~/components/icons";
+import { useAuth } from "~/lib/auth";
+import { getMyOrder } from "~/lib/customer-orders";
 import { formatJalaliDate, formatPrice, toFaDigits } from "~/lib/format";
 import { getOrder, type Order, type OrderItem } from "~/lib/orders";
+import { isSupabaseConfigured } from "~/lib/supabase";
 
 export const Route = createFileRoute("/order-success")({
   validateSearch: (search: Record<string, unknown>): { order?: string } => ({
@@ -270,14 +273,51 @@ function OrderConfirmation({ order }: { order: Order }) {
 
 function OrderSuccessPage() {
   const { order: reference } = Route.useSearch();
+  const { status: authStatus } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
-  // Persistence is client-only (localStorage), so it is read after mount.
+  /**
+   * Where the confirmation comes from (STEP 6):
+   *  • a SIGNED-IN customer on a connected store: the real row, read back through
+   *    RLS (`getMyOrder` accepts the id or the human-readable reference) — so a
+   *    refresh, or opening the link on another device, still shows the order;
+   *  • a GUEST, or a store without a database: the local snapshot from checkout,
+   *    exactly as in STEP 5. Guests' orders never leave the placing browser, and
+   *    a signed-in customer never sees them.
+   */
   useEffect(() => {
-    setOrder(reference ? getOrder(reference) : null);
+    let active = true;
+    const fromSnapshot = () => (reference ? getOrder(reference) : null);
+
+    if (!reference) {
+      setOrder(null);
+      setHydrated(true);
+      return;
+    }
+
+    // Wait for the session to be known before deciding, so a signed-in customer
+    // is not briefly told "not found on this device".
+    if (isSupabaseConfigured() && authStatus === "loading") return;
+
+    if (isSupabaseConfigured() && authStatus === "signedIn") {
+      void (async () => {
+        const remote = await getMyOrder(reference);
+        if (!active) return;
+        setOrder(remote.ok ? remote.data ?? fromSnapshot() : fromSnapshot());
+        setHydrated(true);
+      })();
+      return () => {
+        active = false;
+      };
+    }
+
+    setOrder(fromSnapshot());
     setHydrated(true);
-  }, [reference]);
+    return () => {
+      active = false;
+    };
+  }, [reference, authStatus]);
 
   return (
     <section className="py-10 sm:py-16">

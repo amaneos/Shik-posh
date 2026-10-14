@@ -137,6 +137,13 @@ export interface Order {
   orderStatus: OrderStatus;
   createdAt: string; // ISO
   updatedAt?: string; // ISO — set when a later step moves a status
+  /**
+   * STEP 6: the signed-in customer who placed the order, or null/absent for a
+   * guest order kept only in this browser's snapshot. The account surfaces also
+   * re-check it client-side (`customerId === user.id`) on top of the database's
+   * RLS policy — belt and braces, never the only defence.
+   */
+  customerId?: string | null;
 }
 
 /* ── What the caller sends ─────────────────────────────────────────────────── */
@@ -173,6 +180,10 @@ export type OrderErrorReason =
   | "inactive"
   | "insufficient-stock"
   | "invalid-input"
+  /** The database function rejected the line itself (STEP 6 RPC hints). */
+  | "invalid-quantity"
+  | "duplicate-variant"
+  | "variant-missing"
   | "duplicate-order"
   | "unavailable"
   | "persistence";
@@ -187,6 +198,10 @@ export const ORDER_ERROR_MESSAGES: Record<OrderErrorReason, string> = {
   "insufficient-stock": "موجودی کافی نیست",
   /** Required customer field is blank (same wording as the DB function). */
   "invalid-input": "اطلاعات سفارش کامل نیست",
+  /** The database function refused the line: bad count / repeated / unknown variant. */
+  "invalid-quantity": "تعداد سفارش نامعتبر است",
+  "duplicate-variant": "یک محصول دو بار در سفارش آمده است",
+  "variant-missing": "این محصول موجود نیست",
   "duplicate-order": "سفارش تکراری",
   /** No server-side writer available (Supabase connected, RPC not wired yet). */
   unavailable: "ثبت سفارش در حال حاضر امکان‌پذیر نیست",

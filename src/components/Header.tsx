@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { Container } from "~/components/Container";
 import { Input } from "~/components/Input";
 import { BagIcon, SearchIcon, UserIcon } from "~/components/icons";
+import { useAuth } from "~/lib/auth";
 import { useCart } from "~/lib/cart";
 import { toFaDigits } from "~/lib/format";
 import { useStoreSettings } from "~/lib/store-settings";
@@ -77,11 +78,38 @@ function CartButton() {
 }
 
 /**
+ * Account entry point (STEP 6): a real link to /account when signed in, to
+ * /login otherwise. While the session is still being restored (`loading`) it
+ * points at /account, which renders its own skeleton — never a flash of "ورود"
+ * for a customer who is in fact signed in. White-label: neutral wording only.
+ */
+function AccountButton() {
+  const { status, profile } = useAuth();
+  const label =
+    status === "signedIn" ? (profile?.name?.trim() ? `حساب کاربری — ${profile.name}` : "حساب کاربری") : "ورود";
+  const to = status === "signedOut" || status === "unconfigured" ? "/login" : "/account";
+  return (
+    <Link
+      to={to as LinkProps["to"]}
+      aria-label={label}
+      title={label}
+      data-account-entry={status}
+      className="relative inline-flex h-10 min-w-10 shrink-0 items-center justify-center gap-1.5 rounded-pill px-2 text-stone-700 transition-colors hover:bg-stone-200/70 hover:text-stone-900"
+    >
+      <UserIcon className="h-5 w-5" />
+      <span className="hidden text-xs font-medium lg:inline">
+        {status === "signedIn" ? "حساب کاربری" : "ورود"}
+      </span>
+    </Link>
+  );
+}
+
+/**
  * Storefront header. Logo is a neutral wordmark read from store settings
  * (placeholder «فروشگاه پوشاک» until a client row exists). Two rows on mobile
  * (logo+actions, then nav); one row on md+ with an inline search box that
- * submits to /shop?q=<term>. The cart icon is live (badge + /cart link);
- * the account icon is still presentational.
+ * submits to /shop?q=<term>. The cart icon is live (badge + /cart link) and the
+ * account icon links to the account area / sign-in.
  */
 export function Header() {
   const settings = useStoreSettings();
@@ -126,9 +154,7 @@ export function Header() {
               <SearchIcon className="h-5 w-5" />
             </IconButton>
           </span>
-          <IconButton label="حساب کاربری">
-            <UserIcon className="h-5 w-5" />
-          </IconButton>
+          <AccountButton />
           <CartButton />
         </div>
       </Container>
