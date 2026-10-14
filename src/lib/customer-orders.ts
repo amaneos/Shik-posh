@@ -193,7 +193,7 @@ export async function getMyOrder(reference: string): Promise<OrdersResult<Order 
   if (error) return { ok: false, message: ORDERS_LOAD_ERROR };
   if (!data) return { ok: true, data: null };
   const order = mapOrderRow(data as unknown as OrderRow);
-  if (data.customer_id == null || order.customerId == null) {
+  if (order.customerId == null) {
     // A guest order (customer_id IS NULL) is not addressable from an account.
     return { ok: true, data: null };
   }

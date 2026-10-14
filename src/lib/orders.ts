@@ -180,6 +180,10 @@ export type OrderErrorReason =
   | "inactive"
   | "insufficient-stock"
   | "invalid-input"
+  /** The database function rejected the line itself (STEP 6 RPC hints). */
+  | "invalid-quantity"
+  | "duplicate-variant"
+  | "variant-missing"
   | "duplicate-order"
   | "unavailable"
   | "persistence";
@@ -194,6 +198,10 @@ export const ORDER_ERROR_MESSAGES: Record<OrderErrorReason, string> = {
   "insufficient-stock": "موجودی کافی نیست",
   /** Required customer field is blank (same wording as the DB function). */
   "invalid-input": "اطلاعات سفارش کامل نیست",
+  /** The database function refused the line: bad count / repeated / unknown variant. */
+  "invalid-quantity": "تعداد سفارش نامعتبر است",
+  "duplicate-variant": "یک محصول دو بار در سفارش آمده است",
+  "variant-missing": "این محصول موجود نیست",
   "duplicate-order": "سفارش تکراری",
   /** No server-side writer available (Supabase connected, RPC not wired yet). */
   unavailable: "ثبت سفارش در حال حاضر امکان‌پذیر نیست",
