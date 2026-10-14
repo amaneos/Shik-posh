@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { Footer } from "~/components/Footer";
 import { Header } from "~/components/Header";
+import { AuthProvider } from "~/lib/auth";
 import { CartProvider } from "~/lib/cart";
 import appCss from "~/styles/app.css?url";
 
@@ -36,16 +37,20 @@ function RootComponent() {
     <RootDocument>
       {/* CartProvider wraps the WHOLE layout (not just <Outlet/>) because the
           header's cart badge reads the same store. It hydrates from
-          localStorage after mount, so SSR and the first client render agree. */}
-      <CartProvider>
-        <div className="flex min-h-dvh flex-col">
-          <Header />
-          <main className="flex-1">
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
-      </CartProvider>
+          localStorage after mount, so SSR and the first client render agree.
+          AuthProvider (STEP 6) sits at the same level for the same reason: the
+          header's account entry and every account route read one session. */}
+      <AuthProvider>
+        <CartProvider>
+          <div className="flex min-h-dvh flex-col">
+            <Header />
+            <main className="flex-1">
+              <Outlet />
+            </main>
+            <Footer />
+          </div>
+        </CartProvider>
+      </AuthProvider>
     </RootDocument>
   );
 }

@@ -33,9 +33,16 @@ import { Card } from "~/components/Card";
 import { Container } from "~/components/Container";
 import { Input } from "~/components/Input";
 import { BagIcon } from "~/components/icons";
+import { useAuth } from "~/lib/auth";
 import { useCart, type CartLine } from "~/lib/cart";
+import {
+  createOrderInDatabase,
+  databaseOrderErrorToFa,
+  databaseOrderNumber,
+} from "~/lib/customer-orders";
 import { formatPrice, toFaDigits } from "~/lib/format";
-import { orderErrorToFa, placeOrder } from "~/lib/orders";
+import { orderErrorToFa, placeOrder, type PlaceOrderResult } from "~/lib/orders";
+import { isSupabaseConfigured } from "~/lib/supabase";
 
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
@@ -341,6 +348,7 @@ const MOCK_PAYMENT_MS = 1000;
 
 function CheckoutPage() {
   const { items, lines, hydrated, itemCount, subtotal, clear } = useCart();
+  const { status: authStatus, user, profile } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState<FormValues>(EMPTY_FORM);
@@ -362,12 +370,95 @@ function CheckoutPage() {
   const payingRef = useRef(false);
 
   const isEmpty = lines.length === 0;
+  /** Signed-in + configured → the order is written by the database function. */
+  const databaseMode = isSupabaseConfigured() && authStatus === "signedIn" && !!user;
+
+  /**
+   * Pre-fill the delivery details from the customer's profile ONCE, as soon as
+   * the session is known. Typed values are never overwritten (the ref latches on
+   * the first fill), so a customer who edits a field keeps their edit.
+   */
+  const prefilled = useRef(false);
+  if (databaseMode && !prefilled.current && profile) {
+    prefilled.current = true;
+    setForm((prev) => ({
+      ...prev,
+      name: prev.name || profile.name || "",
+      phone: prev.phone || profile.phone || "",
+      email: prev.email || profile.email || user?.email || "",
+    }));
+  }
 
   const update = (key: FieldKey, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     // Clear the field's message as soon as the customer edits it (cart-page style:
     // the next submit re-validates everything).
     setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
+  };
+
+  /**
+   * Submit to whichever writer this deployment has. The demo deployment keeps the
+   * in-memory ledger path of STEP 5 (unchanged); a connected store writes through
+   * `public.create_order_with_items(..., p_customer_id)`, which prices the order
+   * and reserves stock in one transaction.
+   */
+  const submit = async (): Promise<{ result: PlaceOrderResult; message: string | null }> => {
+    const customer = {
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      email: form.email.trim(),
+    };
+    const address = form.address.trim();
+    const notes = form.notes.trim();
+
+    if (!databaseMode) {
+      const result = placeOrder({
+        customer: {
+          name: customer.name,
+          phone: customer.phone,
+          ...(customer.email === "" ? {} : { email: customer.email }),
+        },
+        shippingAddress: address,
+        ...(notes === "" ? {} : { notes }),
+        cartItems: items.map(({ productId, variantId, quantity }) => ({
+          productId,
+          variantId,
+          quantity,
+        })),
+        // Page-scoped token: a retry after a refusal is allowed, while a replay
+        // of an already-consumed attempt can never create a second order.
+        submissionToken,
+      });
+      return { result, message: result.ok ? null : orderErrorToFa(result.reason) };
+    }
+
+    // Reference = ORD-<yyyymmdd>-<minutes>: human-readable and 4 digits. If two
+    // orders land in the same minute the UNIQUE constraint refuses the second,
+    // and we simply try the next minute a couple of times.
+    const itemsSent = items.map(({ productId, variantId, quantity }) => ({
+      productId,
+      variantId,
+      quantity,
+    }));
+    for (let attempt = 0; attempt <= 3; attempt += 1) {
+      const result = await createOrderInDatabase({
+        orderNumber: databaseOrderNumber(new Date(), attempt),
+        customerName: customer.name,
+        customerPhone: customer.phone,
+        customerEmail: customer.email === "" ? null : customer.email,
+        shippingAddress: address,
+        notes: notes === "" ? null : notes,
+        items: itemsSent,
+        customerId: user?.id ?? null,
+      });
+      if (result.ok) return { result, message: null };
+      if (result.reason === "duplicate-order" && attempt < 3) continue;
+      return { result, message: databaseOrderErrorToFa(result.reason) };
+    }
+    return {
+      result: { ok: false, reason: "persistence" },
+      message: databaseOrderErrorToFa("persistence"),
+    };
   };
 
   const pay = async () => {
@@ -384,27 +475,11 @@ function CheckoutPage() {
       // Mock payment: nothing is charged, no gateway is contacted.
       await new Promise((resolve) => setTimeout(resolve, MOCK_PAYMENT_MS));
 
-      const result = placeOrder({
-        customer: {
-          name: form.name.trim(),
-          phone: form.phone.trim(),
-          ...(form.email.trim() === "" ? {} : { email: form.email.trim() }),
-        },
-        shippingAddress: form.address.trim(),
-        ...(form.notes.trim() === "" ? {} : { notes: form.notes.trim() }),
-        cartItems: items.map(({ productId, variantId, quantity }) => ({
-          productId,
-          variantId,
-          quantity,
-        })),
-        // Page-scoped token: a retry after a refusal is allowed, while a replay
-        // of an already-consumed attempt can never create a second order.
-        submissionToken,
-      });
+      const { result, message } = await submit();
 
       if (!result.ok) {
         // Honest failure: the cart is untouched so the customer can adjust it.
-        setOrderError(orderErrorToFa(result.reason));
+        setOrderError(message ?? orderErrorToFa(result.reason));
         return;
       }
 

@@ -137,6 +137,13 @@ export interface Order {
   orderStatus: OrderStatus;
   createdAt: string; // ISO
   updatedAt?: string; // ISO — set when a later step moves a status
+  /**
+   * STEP 6: the signed-in customer who placed the order, or null/absent for a
+   * guest order kept only in this browser's snapshot. The account surfaces also
+   * re-check it client-side (`customerId === user.id`) on top of the database's
+   * RLS policy — belt and braces, never the only defence.
+   */
+  customerId?: string | null;
 }
 
 /* ── What the caller sends ─────────────────────────────────────────────────── */
