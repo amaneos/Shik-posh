@@ -15,6 +15,16 @@ mkdir -p .run
 # the image's pre-built copy), so the first publish installs deps here. No-op
 # once node_modules is current.
 bun install
+# ── Public Supabase build vars ───────────────────────────────────────────────
+# The browser bundle talks to the project directly, so it needs the project URL
+# and the ANON key at BUILD time (Vite inlines VITE_* vars). Both are public by
+# design — the anon key is already shipped in every client bundle and is guarded
+# by RLS. ONLY these two are forwarded: SUPABASE_SERVICE_ROLE_KEY and
+# SUPABASE_ACCESS_TOKEN must never be baked into a browser build.
+# When neither is available the vars stay empty and the app falls back to its
+# demo catalog (src/lib/data.ts keeps the demo branch intact on purpose).
+export VITE_SUPABASE_URL="${VITE_SUPABASE_URL:-${SUPABASE_URL:-}}"
+export VITE_SUPABASE_ANON_KEY="${VITE_SUPABASE_ANON_KEY:-${SUPABASE_ANON_KEY:-}}"
 bun run build
 setsid nohup bun run start > .run/server.log 2>&1 < /dev/null &
 
