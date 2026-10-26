@@ -263,6 +263,19 @@ export async function createOrderInDatabase(
   const sessionUserId = sessionData.session?.user?.id ?? null;
   const customerId = sessionUserId ?? input.customerId ?? null;
 
+  // The RPC's `p_items` is a jsonb array whose EACH element is read with
+  // SNAKE_CASE keys — `product_id`, `variant_id`, `quantity`
+  // (see supabase/migrations/0004_orders.sql, the jsonb_array_elements loop).
+  // The app-side type is camelCase, so the keys are mapped HERE, at the DB
+  // boundary. Do not "simplify" this to `p_items: input.items`: camelCase keys
+  // make every lookup return NULL and the function refuses EVERY order with
+  // hint 'product-missing'.
+  const items = input.items.map((item) => ({
+    product_id: item.productId,
+    variant_id: item.variantId,
+    quantity: item.quantity,
+  }));
+
   const { data, error } = await client.rpc("create_order_with_items", {
     p_order_number: input.orderNumber,
     p_customer_name: input.customerName,
@@ -270,7 +283,7 @@ export async function createOrderInDatabase(
     p_customer_email: input.customerEmail ?? null,
     p_shipping_address: input.shippingAddress,
     p_notes: input.notes ?? null,
-    p_items: input.items,
+    p_items: items,
     p_customer_id: customerId,
   });
   if (error || !data) {
