@@ -26,7 +26,7 @@ import { listMyOrders, type OrdersResult } from "~/lib/customer-orders";
 import { formatJalaliDate, formatPrice, toFaDigits } from "~/lib/format";
 import type { Order } from "~/lib/orders";
 
-export const Route = createFileRoute("/account/orders")({
+export const Route = createFileRoute("/account/orders/")({
   component: AccountOrdersPage,
   head: () => ({
     meta: [{ title: "سفارش‌های من | فروشگاه پوشاک" }],

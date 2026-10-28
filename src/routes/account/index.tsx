@@ -29,7 +29,7 @@ import { useAuth } from "~/lib/auth";
 import { isEmailValid, isPhoneValid, toLatinDigits } from "~/lib/account-rules";
 import { formatJalaliDate } from "~/lib/format";
 
-export const Route = createFileRoute("/account")({
+export const Route = createFileRoute("/account/")({
   component: AccountPage,
   head: () => ({
     meta: [{ title: "حساب کاربری | فروشگاه پوشاک" }],
