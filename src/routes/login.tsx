@@ -24,6 +24,14 @@ import { validateCredentials, type CredentialsErrors } from "~/lib/account-rules
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
+  // `?redirect=/admin` — where to go after a successful sign-in. Only an internal
+  // path is accepted (starts with a single "/"), so the parameter can never be
+  // used to bounce a visitor to another site.
+  validateSearch: (search: Record<string, unknown>) => {
+    const value = typeof search.redirect === "string" ? search.redirect : "";
+    const safe = value.startsWith("/") && !value.startsWith("//") ? value : undefined;
+    return { redirect: safe };
+  },
   head: () => ({
     meta: [{ title: "ورود به حساب | فروشگاه پوشاک" }],
   }),
@@ -31,17 +39,24 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const { status, signIn } = useAuth();
+  const { redirect } = Route.useSearch();
   const navigate = useNavigate();
+  // Where a successful sign-in lands: the requested page, or the account area.
+  const destination = redirect ?? "/account";
+  const go = async () => {
+    await navigate({ to: destination as unknown as LinkProps["to"] });
+  };
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<CredentialsErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // Already signed in (e.g. a bookmarked link) → straight to the account area.
+  // Already signed in (e.g. a bookmarked link) → straight to the intended page.
   useEffect(() => {
-    if (status === "signedIn") void navigate({ to: "/account" });
-  }, [status, navigate]);
+    if (status === "signedIn") void go();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, destination]);
 
   const submit = async () => {
     if (busy) return;
@@ -57,7 +72,7 @@ function LoginPage() {
         setFormError(result.message);
         return;
       }
-      await navigate({ to: "/account" });
+      await go();
     } finally {
       setBusy(false);
     }
