@@ -16,6 +16,7 @@ import { useState, type ReactNode } from "react";
 import { Button } from "~/components/Button";
 import { Card } from "~/components/Card";
 import { UserIcon } from "~/components/icons";
+import { useIsStoreAdmin } from "~/lib/admin";
 import { AUTH_CONFIG_MESSAGE, useAuth } from "~/lib/auth";
 
 /** The neutral "no database connected" state (login, register, account, orders). */
@@ -65,6 +66,11 @@ type AccountSection = "profile" | "orders";
  */
 export function AccountNav({ active }: { active: AccountSection }) {
   const { signOut } = useAuth();
+  // STEP 7: the admin entry exists for store admins only. It is derived from
+  // public.is_store_admin() (fails closed), and the panel itself is guarded
+  // again in src/routes/admin/route.tsx — hiding the link is convenience, the
+  // database policies are the real boundary.
+  const isAdmin = useIsStoreAdmin();
   const navigate = useNavigate();
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -93,6 +99,15 @@ export function AccountNav({ active }: { active: AccountSection }) {
       >
         سفارش‌های من
       </Link>
+      {isAdmin ? (
+        <Link
+          to="/admin"
+          className="rounded-pill px-3.5 py-2 text-sm font-medium text-accent-800 transition-colors hover:bg-accent-700/10"
+          data-account-nav-item="admin"
+        >
+          پنل مدیریت
+        </Link>
+      ) : null}
 
       <span className="ms-auto flex items-center gap-2">
         {confirming ? (
